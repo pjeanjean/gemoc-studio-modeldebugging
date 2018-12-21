@@ -39,9 +39,9 @@
   	<!--  must NOT include the repositories of the tools included in the Studio has it has its own complementary list -->
 
 		<repository>
-            <id>Photon release</id>
+            <id>Eclipse IDE release</id>
             <layout>p2</layout>
-            <url>http://download.eclipse.org/releases/photon</url>
+            <url>http://download.eclipse.org/releases/2018-12</url>
         </repository>
         <repository>
             <id>kermeta-3</id>
