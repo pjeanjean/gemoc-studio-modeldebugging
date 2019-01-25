@@ -47,12 +47,14 @@ import org.eclipse.sirius.business.internal.session.danalysis.DAnalysisSessionIm
 import org.eclipse.sirius.common.tools.api.resource.ResourceSetFactory;
 import org.eclipse.sirius.diagram.DDiagram;
 import org.eclipse.sirius.diagram.DSemanticDiagram;
+import org.eclipse.sirius.diagram.DiagramPlugin;
 import org.eclipse.sirius.diagram.description.DiagramExtensionDescription;
 import org.eclipse.sirius.diagram.description.Layer;
 import org.eclipse.sirius.diagram.tools.api.command.ChangeLayerActivationCommand;
+import org.eclipse.sirius.diagram.tools.api.management.ToolFilter;
 import org.eclipse.sirius.diagram.ui.business.internal.command.RefreshDiagramOnOpeningCommand;
 import org.eclipse.sirius.diagram.ui.tools.api.editor.DDiagramEditor;
-import org.eclipse.sirius.diagram.ui.tools.api.graphical.edit.palette.ToolFilter;
+//import org.eclipse.sirius.diagram.ui.tools.api.graphical.edit.palette.ToolFilter;
 import org.eclipse.sirius.ui.business.api.dialect.DialectEditor;
 import org.eclipse.sirius.ui.business.api.dialect.DialectUIManager;
 import org.eclipse.sirius.ui.business.api.session.IEditingSession;
@@ -298,7 +300,8 @@ public class DefaultModelLoader implements IModelLoader {
 				final IEditorPart editorPart = DialectUIManager.INSTANCE.openEditor(session, representation,
 						openEditorSubMonitor.newChild(1));
 				if (editorPart instanceof DDiagramEditor) {
-					((DDiagramEditor) editorPart).getPaletteManager().addToolFilter(new ToolFilter() {
+					// disable all tools during the execution
+					DiagramPlugin.getDefault().getToolManagement(diagram).addToolFilter(new ToolFilter() {
 						@Override
 						public boolean filter(DDiagram diagram, AbstractToolDescription tool) {
 							return true;
