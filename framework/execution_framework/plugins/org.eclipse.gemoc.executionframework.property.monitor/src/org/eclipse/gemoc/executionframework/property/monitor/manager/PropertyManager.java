@@ -73,8 +73,13 @@ public class PropertyManager implements IEngineAddon {
 	}
 
 	public void addProperty(String filePath) {
-		final Resource propertyResource = patternResourceSet.getResource(URI.createPlatformResourceURI(filePath, true),
-				true);
+		addProperty(filePath, false);
+	}
+	
+	public void addProperty(String filePath, boolean plugin) {
+		final Resource propertyResource = plugin ?
+				patternResourceSet.getResource(URI.createPlatformPluginURI(filePath, true), true) :
+				patternResourceSet.getResource(URI.createPlatformResourceURI(filePath, true), true);
 		if (propertyResource != null) {
 			if (propertyResource.getErrors().size() == 0 && !propertyResource.getContents().isEmpty()) {
 				final EObject topElement = propertyResource.getContents().get(0);
