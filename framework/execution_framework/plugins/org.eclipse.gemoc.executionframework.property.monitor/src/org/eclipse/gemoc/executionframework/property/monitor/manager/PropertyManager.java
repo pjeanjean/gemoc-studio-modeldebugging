@@ -102,6 +102,7 @@ public class PropertyManager implements IEngineAddon {
 	public void clearProperties() {
 		temporalProperties.forEach(p -> p.destroy(builder));
 		temporalProperties.clear();
+		patternResourceSet.getResources().clear();
 	}
 
 	public void setEngine(IExecutionEngine<?> executionEngine) {
