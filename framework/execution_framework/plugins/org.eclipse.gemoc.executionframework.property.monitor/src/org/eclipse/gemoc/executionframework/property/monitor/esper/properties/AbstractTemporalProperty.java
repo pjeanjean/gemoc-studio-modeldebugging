@@ -30,6 +30,43 @@ import com.espertech.esper.runtime.client.EPUndeployException;
 
 public abstract class AbstractTemporalProperty {
 
+	private interface MatchAdapter {
+		Map<String, Object> produceNewMatches(Set<IPatternMatch> matches);
+	}
+	
+	private class MatchAdapterInit implements MatchAdapter {
+		@Override
+		public Map<String, Object> produceNewMatches(Set<IPatternMatch> matches) {
+			final List<IPatternMatch> relevantMatches = matches.stream().filter(m -> queries.containsKey(m.patternName()))
+					.collect(Collectors.toList());
+			relevantMatches.forEach(m -> lastMatches.put(m.patternName(), m));
+			final Map<String, Object> result = new HashMap<>(lastMatches);
+			matchAdapter = new MatchAdapterNext();
+			return result;
+		}
+	}
+	
+	private class MatchAdapterNext implements MatchAdapter {
+		@Override
+		public Map<String, Object> produceNewMatches(Set<IPatternMatch> matches) {
+			final List<IPatternMatch> relevantMatches = matches.stream().filter(m -> queries.containsKey(m.patternName()))
+					.collect(Collectors.toList());
+			final boolean sameMatches = (relevantMatches.size() == lastMatches.size())
+					? relevantMatches.stream().allMatch(m -> lastMatches.containsKey(m.patternName())
+							? lastMatches.get(m.patternName()).isCompatibleWith(m)
+							: false)
+					: false;
+			if (sameMatches) {
+				return null;
+			} else {
+				lastMatches.clear();
+				relevantMatches.forEach(m -> lastMatches.put(m.patternName(), m));
+				final Map<String, Object> result = new HashMap<>(lastMatches);
+				return result;
+			}
+		}
+	}
+	
 	protected final Map<String, IQuerySpecification<?>> queries = new HashMap<>();
 
 	private final Map<String, IPatternMatch> lastMatches = new HashMap<>();
@@ -43,6 +80,8 @@ public abstract class AbstractTemporalProperty {
 	protected final SpecificationBuilder builder;
 
 	private final Set<EPRuntime> activeRuntimes = new HashSet<>();
+	
+	private MatchAdapter matchAdapter = new MatchAdapterInit();
 
 	public AbstractTemporalProperty(SpecificationBuilder builder, String name) {
 		this.builder = builder;
@@ -51,21 +90,7 @@ public abstract class AbstractTemporalProperty {
 	}
 
 	public Map<String, Object> produceNewMatches(Set<IPatternMatch> matches) {
-		final List<IPatternMatch> relevantMatches = matches.stream().filter(m -> queries.containsKey(m.patternName()))
-				.collect(Collectors.toList());
-		final boolean sameMatches = (relevantMatches.size() == lastMatches.size())
-				? relevantMatches.stream().allMatch(m -> lastMatches.containsKey(m.patternName())
-						? lastMatches.get(m.patternName()).isCompatibleWith(m)
-						: false)
-				: false;
-		if (sameMatches) {
-			return null;
-		} else {
-			lastMatches.clear();
-			relevantMatches.forEach(m -> lastMatches.put(m.patternName(), m));
-			final Map<String, Object> result = new HashMap<>(lastMatches);
-			return result;
-		}
+		return matchAdapter.produceNewMatches(matches);
 	}
 
 	public String getName() {
