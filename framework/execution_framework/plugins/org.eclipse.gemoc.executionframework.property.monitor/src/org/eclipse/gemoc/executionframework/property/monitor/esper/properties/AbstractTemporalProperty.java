@@ -211,4 +211,10 @@ public abstract class AbstractTemporalProperty {
 			this.value = value;
 		}
 	}
+
+	public void reset() {
+		lastMatches.clear();
+		matchAdapter = new MatchAdapterInit();
+		propertyState.setValue(TruthValue.UNKNOWN);
+	}
 }

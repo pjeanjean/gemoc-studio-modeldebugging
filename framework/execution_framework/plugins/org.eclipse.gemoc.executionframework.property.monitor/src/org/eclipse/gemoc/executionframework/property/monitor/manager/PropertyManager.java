@@ -16,7 +16,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.gemoc.executionframework.property.model.property.TemporalProperty;
-import org.eclipse.gemoc.executionframework.property.monitor.esper.TruthValue;
 import org.eclipse.gemoc.executionframework.property.monitor.esper.properties.AbstractTemporalProperty;
 import org.eclipse.gemoc.executionframework.property.monitor.esper.properties.AbstractTemporalProperty.PropertyState;
 import org.eclipse.gemoc.trace.commons.model.trace.Step;
@@ -81,7 +80,7 @@ public class PropertyManager implements IEngineAddon {
 				patternResourceSet.getResource(URI.createPlatformPluginURI(filePath, true), true) :
 				patternResourceSet.getResource(URI.createPlatformResourceURI(filePath, true), true);
 		if (propertyResource != null) {
-			if (propertyResource.getErrors().size() == 0 && !propertyResource.getContents().isEmpty()) {
+			if (propertyResource.getErrors().isEmpty() && !propertyResource.getContents().isEmpty()) {
 				final EObject topElement = propertyResource.getContents().get(0);
 				if (topElement instanceof TemporalProperty) {
 					final TemporalProperty property = (TemporalProperty) topElement;
@@ -98,7 +97,7 @@ public class PropertyManager implements IEngineAddon {
 	public void addProperty(TemporalProperty property) {
 		temporalProperties.add(compiler.compileProperty(property));
 	}
-
+	
 	public void clearProperties() {
 		temporalProperties.forEach(p -> p.destroy(builder));
 		temporalProperties.clear();
@@ -141,7 +140,7 @@ public class PropertyManager implements IEngineAddon {
 		});
 		runtime = EPRuntimeProvider.getRuntime(executionEngine.getName(), configuration);
 		activeTemporalProperties.forEach(p -> p.deploy(runtime, prop -> temporalPropertiesToRemove.add(prop)));
-		temporalProperties.forEach(p -> p.getPropertyState().setValue(TruthValue.UNKNOWN));
+		temporalProperties.forEach(p -> p.reset());
 		initialized = true;
 	}
 
@@ -159,7 +158,6 @@ public class PropertyManager implements IEngineAddon {
 		queries.clear();
 		activeTemporalProperties.clear();
 		temporalPropertiesToRemove.clear();
-//		temporalProperties.forEach(p -> p.reset());
 	}
 
 	@Override
