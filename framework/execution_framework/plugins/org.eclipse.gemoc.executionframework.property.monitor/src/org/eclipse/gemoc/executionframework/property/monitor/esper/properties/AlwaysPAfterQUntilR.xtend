@@ -33,7 +33,7 @@ class AlwaysPAfterQUntilR extends AbstractTemporalProperty {
 				select * from «name»
 				match_recognize (
 					measures nP as nP, EoE as EoE
-					pattern (EoE | (Q P*? (nP | EoE | R)))
+					pattern (EoE | (Q P*? (R | nP | EoE)))
 					define
 						P as P.«pFqn»? is not null,
 						nP as nP.«pFqn»? is null,
