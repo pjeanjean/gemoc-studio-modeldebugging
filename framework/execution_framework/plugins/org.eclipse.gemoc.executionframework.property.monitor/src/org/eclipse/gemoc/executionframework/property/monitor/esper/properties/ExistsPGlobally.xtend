@@ -21,6 +21,7 @@ class ExistsPGlobally extends AbstractTemporalProperty {
 	
 	override protected String getStatementString() {
 		val pFqn = p.fqn
+		val pattern = pattern
 		val result =
 			'''
 				select * from «name»
@@ -31,7 +32,9 @@ class ExistsPGlobally extends AbstractTemporalProperty {
 						P as P.«pFqn»? is not null,
 						P2 as P2.«pFqn»? is not null,
 						nP as nP.«pFqn»? is null,
-						EoE as EoE.executionAboutToStop? is not null
+						EoE as EoE.executionAboutToStop? is not null«
+						if (pattern.contains("P1"))
+							",\nP1 as P1.«pFqn»? is not null"»
 				)
 			'''
 		return result
@@ -53,15 +56,10 @@ class ExistsPGlobally extends AbstractTemporalProperty {
 	}
 	
 	private def getPattern() {
-		val pattern =
+		return
 			'''
 				pattern («rec(0)»)
 			'''
-		if (pattern.contains("P1")) {
-			return pattern + ", P1 as P1.«pFqn»? is not null"
-		} else {
-			return pattern	
-		}
 	}
 	
 	override protected getStatus(Map<String, List<Map<?, ?>>> events) {
