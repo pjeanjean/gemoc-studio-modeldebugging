@@ -34,7 +34,7 @@ class ExistsPGlobally extends AbstractTemporalProperty {
 						nP as nP.«pFqn»? is null,
 						EoE as EoE.executionAboutToStop? is not null«
 						if (pattern.contains("P1"))
-							",\nP1 as P1.«pFqn»? is not null"»
+							",\nP1 as P1." + pFqn + "? is not null"»
 				)
 			'''
 		return result
